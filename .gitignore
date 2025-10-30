@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+
+# Claude Code settings (contains API keys)
+.claude/settings.local.json
+
+# Raycast extension data
+# ユーザーデータ（ログファイル、エイリアス設定など）
+# 注: これらは ~/Library/Application Support に保存されるため、
+# リポジトリには含まれませんが、念のため記載
+logs-*.jsonl
+aliases.json
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+tmp/
+temp/

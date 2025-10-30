@@ -595,3 +595,231 @@ class AliasManager {
 3. **オプション（拡張）**: バッファリング最適化、詳細なエラーメタデータ記録
 
 これらの実装ガイドラインに従うことで、設計レビューで指摘された課題に対処しながら、堅牢なMVPを構築できます。
+
+---
+
+## 将来の拡張機能 (MVP Phase 2以降)
+
+このセクションでは、MVP (Phase 1) の成功後に検討すべき拡張機能を記載します。これらは現在の実装スコープには含まれませんが、将来的な価値提供の方向性を示します。
+
+### Phase 2: マーケットプレイス推奨機能
+
+**概要**: ユーザーの操作パターンから有用な Raycast 拡張機能を推奨し、新しいツールの発見を支援します。
+
+**背景と価値**:
+- 現在のMVPは「既存の操作を最適化」
+- Phase 2では「新しい拡張の発見」により、さらなる効率化を実現
+- ユーザーが知らない便利な拡張を能動的に提案
+
+**実装アプローチ**:
+
+1. **Claude API 分析拡張**
+```typescript
+// プロンプトに追加
+`
+# EXTENSION_DETECTION (Optional)
+- Detect frequent keywords suggesting missing tools
+- Examples:
+  - "jira-XXX" pattern → Jira extension
+  - "github.com/..." URLs → GitHub extension
+  - "notion.so/..." URLs → Notion extension
+
+# OUTPUT_SCHEMA (Extended)
+{
+  "proposals": [...],
+  "extension_hints": [
+    {
+      "keyword": "jira",
+      "frequency": 5,
+      "suggested_search": "jira issue tracker"
+    }
+  ]
+}
+`
+```
+
+2. **Raycast Store 統合**
+```typescript
+// 要調査: Raycast Store API の有無
+async function searchStoreExtensions(query: string) {
+  // Option A: 公式API (要確認)
+  const response = await fetch(
+    `https://api.raycast.com/v1/extensions/search?q=${query}`
+  );
+
+  // Option B: Web スクレイピング
+  const url = `https://www.raycast.com/store?search=${query}`;
+  // WebFetch で取得 → パース
+}
+```
+
+3. **UI 拡張**
+```markdown
+## 💡 拡張機能の推奨
+
+Jira関連の操作が多いようです。以下の拡張をインストールしませんか？
+
+**Jira Search** (by raycast)
+⭐ 4.8 · 12K downloads
+課題を直接検索・作成
+
+[詳細を見る] [インストール]
+```
+
+**ユーザー体験例**:
+```
+入力: "jira-1234" を週5回入力
+
+提案:
+┌─────────────────────────────────────────────┐
+│ 💡 拡張機能の推奨                            │
+│                                             │
+│ Jira Search 拡張をインストールすると、      │
+│ 課題番号を直接検索できます！                │
+│                                             │
+│ [インストール] [後で]                       │
+└─────────────────────────────────────────────┘
+```
+
+**技術的課題**:
+- Raycast Store API の公式サポート状況確認
+- インストール自動化の可否（Deeplink で完結するか）
+- 推奨精度の向上（誤推奨を避ける）
+
+**開発工数見積もり**: +2時間
+
+---
+
+### Phase 3: カスタム拡張テンプレート生成
+
+**概要**: 定型ワークフローを検出し、ユーザー専用の Raycast 拡張の雛形を自動生成します。
+
+**背景と価値**:
+- 複雑な定型作業は既製拡張では対応困難
+- 拡張開発のハードルを下げ、カスタマイズを促進
+- Claude のコード生成能力を活用
+
+**実装アプローチ**:
+
+```typescript
+// Claude に依頼するプロンプト
+`
+以下のワークフローパターンを検出しました:
+- "deploy staging" → "deploy production" (週3回)
+
+Raycast拡張のテンプレートコードを生成してください。
+要件:
+- TypeScript + Raycast API
+- List UI で Staging/Production を選択
+- 確認ダイアログ付き実行
+`
+
+// 生成されるコード例
+export default function Command() {
+  return (
+    <List>
+      <List.Item title="Deploy to Staging" />
+      <List.Item title="Deploy to Production" />
+    </List>
+  );
+}
+```
+
+**ユーザー体験例**:
+```
+検出: "deploy staging" → "deploy production" 連鎖
+
+提案:
+┌─────────────────────────────────────────────┐
+│ 🛠️ カスタム拡張の作成を検討しませんか？      │
+│                                             │
+│ デプロイワークフローが定型化されています。  │
+│ 専用の拡張を作ると便利かもしれません。      │
+│                                             │
+│ 開発時間の見積もり: 約2時間                 │
+│                                             │
+│ [テンプレート生成] [拡張開発ガイド]        │
+└─────────────────────────────────────────────┘
+```
+
+**生成される雛形**:
+- `package.json`: 拡張メタデータ
+- `deploy-manager.tsx`: メインコマンド
+- `README.md`: カスタマイズ手順
+
+**技術的課題**:
+- テンプレートの汎用性確保
+- ユーザーのスキルレベルに応じた説明
+- Claude Code 統合の可能性
+
+**開発工数見積もり**: +3時間
+
+---
+
+### Phase 4: ワークフロー自動化提案 (Script Commands)
+
+**概要**: 時刻パターンから定型作業を検出し、Script Commands による自動化を提案します。
+
+**背景と価値**:
+- 毎朝/毎夕の定型ルーチンを自動化
+- Script Commands は軽量で導入しやすい
+- Phase 2 のマクロ提案の延長線
+
+**実装アプローチ**:
+
+```typescript
+// 時刻相関分析
+const morningRoutine = detectTimePattern(logs);
+// → 毎朝9時前後に File Search, Terminal, Slack
+
+// Script Command 生成
+const script = `
+#!/bin/bash
+# @raycast.title Morning Routine
+# @raycast.mode silent
+
+open -a "Finder" ~/Documents
+open -a "Terminal"
+open -a "Slack"
+`;
+```
+
+**ユーザー体験例**:
+```
+検出: 毎朝9時に File Search → Terminal → Slack
+
+提案:
+┌─────────────────────────────────────────────┐
+│ ⏰ ワークフロー自動化                        │
+│                                             │
+│ 毎朝の定型作業を検出しました。              │
+│ Script Command で自動化できます。           │
+│                                             │
+│ [スクリプトをコピー] [設置ガイド]          │
+└─────────────────────────────────────────────┘
+```
+
+**技術的課題**:
+- 時刻パターンの検出精度
+- False Positive の抑制
+
+**開発工数見積もり**: +1時間
+
+---
+
+### フェーズ別ロードマップ
+
+| フェーズ | 機能 | 価値 | 工数 | 優先度 |
+|---------|------|------|------|--------|
+| **Phase 1 (MVP)** | ショートカット/スニペット/マクロ提案 | コア価値実証 | 5h | 必須 |
+| **Phase 2** | マーケットプレイス推奨 | 新ツール発見 | +2h | 高 |
+| **Phase 3** | カスタム拡張テンプレート | 高度なカスタマイズ | +3h | 中 |
+| **Phase 4** | ワークフロー自動化 | 時刻ベース提案 | +1h | 低 |
+
+### 実装戦略
+
+1. **Phase 1 完成後、ユーザーフィードバック収集**
+2. **Phase 2 から順次実装** (投資対効果が高い順)
+3. **各フェーズで独立してリリース可能な設計**
+
+これらの拡張機能により、Command Critic は単なる「最適化ツール」から「Raycast体験の総合コンサルタント」へと進化します。

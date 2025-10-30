@@ -1,0 +1,75 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "command-critic-raycast",
+  "title": "Command Critic",
+  "description": "Raycast操作ログを収集し、AI分析により最適化提案を生成する拡張機能",
+  "icon": "command-icon.png",
+  "author": "tonishi",
+  "categories": [
+    "Productivity",
+    "Developer Tools"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "launcher",
+      "title": "Launcher",
+      "description": "ログ収集用ランチャー（検索バー + エイリアスリスト）",
+      "mode": "view"
+    },
+    {
+      "name": "critic",
+      "title": "Critic",
+      "description": "AI分析結果表示（提案カード表示）",
+      "mode": "view"
+    },
+    {
+      "name": "onboarding",
+      "title": "Onboarding",
+      "description": "初回セットアップフロー（エイリアス登録）",
+      "mode": "view"
+    },
+    {
+      "name": "manage-aliases",
+      "title": "Manage Aliases",
+      "description": "エイリアス管理（追加・編集・削除）",
+      "mode": "view"
+    },
+    {
+      "name": "clear-logs",
+      "title": "Clear Logs",
+      "description": "操作ログの削除（データ管理）",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "apiKey",
+      "type": "password",
+      "required": true,
+      "title": "Claude API Key",
+      "description": "Anthropic Claude API キー（https://console.anthropic.com から取得）",
+      "placeholder": "sk-ant-..."
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.79.0",
+    "@raycast/utils": "^1.16.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.8",
+    "@types/node": "20.8.10",
+    "@types/react": "18.3.3",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}
