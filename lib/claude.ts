@@ -10,15 +10,11 @@ import type { LogEvent, Proposal, AnalysisResponse, Preferences } from "../types
 const CLAUDE_API_ENDPOINT = "https://api.anthropic.com/v1/messages";
 
 /** 使用する Claude モデル */
-// 2025年10月時点の最新モデル: Claude Sonnet 4.5 (2025年9月29日リリース)
-// 利用可能なモデル:
-//   - claude-sonnet-4-5-20250929 (最新・推奨)
-//   - claude-opus-4-1-20250805 (高度な推論タスク向け)
-//   - claude-sonnet-4-20250514
+// Claude Sonnet 4.5 (最新モデル)
 const CLAUDE_MODEL = "claude-sonnet-4-5-20250929";
 
 /** API リクエストのタイムアウト（ミリ秒） */
-const API_TIMEOUT = 10000; // 10秒（要件 9.4）
+const API_TIMEOUT = 30000; // 30秒（AI分析には時間がかかる場合がある）
 
 /** レート制限対策: 最小呼び出し間隔（ミリ秒） */
 const MIN_CALL_INTERVAL = 1000; // 1秒
@@ -140,11 +136,20 @@ async function fetchWithTimeout(
 export function parseResponse(apiResponse: any): AnalysisResponse {
   try {
     // Claude API のレスポンスからテキストを抽出
-    const content = apiResponse.content?.[0]?.text || "";
+    let content = apiResponse.content?.[0]?.text || "";
 
     if (!content) {
       console.error("Empty response from Claude API");
       return { proposals: [], extension_hints: [] };
+    }
+
+    // Claude が Markdown コードブロックで返す場合の処理
+    // ```json ... ``` を削除
+    content = content.trim();
+    if (content.startsWith('```json')) {
+      content = content.replace(/^```json\s*/m, '').replace(/\s*```$/m, '');
+    } else if (content.startsWith('```')) {
+      content = content.replace(/^```\s*/m, '').replace(/\s*```$/m, '');
     }
 
     const parsed: AnalysisResponse = JSON.parse(content);
@@ -155,6 +160,7 @@ export function parseResponse(apiResponse: any): AnalysisResponse {
   } catch (e) {
     // JSON パースエラーは静かに失敗（要件 3.8）
     console.error("Failed to parse Claude response:", e);
+    console.error("Raw content:", apiResponse.content?.[0]?.text);
     return { proposals: [], extension_hints: [] };
   }
 }
@@ -170,11 +176,12 @@ export async function fetchAnalysis(logs: LogEvent[]): Promise<AnalysisResponse>
 
   if (!apiKey || apiKey.trim() === "") {
     throw new Error(
-      "Claude API キーが設定されていません。\n\n" +
+      "Claude API キーが設定されていません。\n" +
+      "\n" +
       "**設定方法**:\n" +
       "1. Raycast を開く（⌘ + Space）\n" +
       "2. 'Preferences' と入力\n" +
-      "3. 'Extensions' > 'Command Critic' を選択\n" +
+      "3. 'Extensions' > 'Command Clinic' を選択\n" +
       "4. 'Claude API Key' フィールドにキーを入力\n" +
       "5. API キーは https://console.anthropic.com で取得できます"
     );
@@ -193,6 +200,8 @@ export async function fetchAnalysis(logs: LogEvent[]): Promise<AnalysisResponse>
   const prompt = buildPrompt(logs);
 
   try {
+    console.log(`[ClaudeAPI] Analyzing ${logs.length} log events with model: ${CLAUDE_MODEL}`);
+
     // Claude API リクエスト（要件 3.5）
     const response = await fetchWithTimeout(
       CLAUDE_API_ENDPOINT,
@@ -206,12 +215,14 @@ export async function fetchAnalysis(logs: LogEvent[]): Promise<AnalysisResponse>
         body: JSON.stringify({
           model: CLAUDE_MODEL,
           max_tokens: 2048,
-          system: "You are 'Command Critic', an expert at optimizing Raycast usage. Analyze logs and propose actionable improvements.",
+          system: "You are 'Command Clinic', an expert at optimizing Raycast usage. Analyze logs and propose actionable improvements.",
           messages: [{ role: "user", content: prompt }],
         }),
       },
       API_TIMEOUT
     );
+
+    console.log(`[ClaudeAPI] Response status: ${response.status}`);
 
     // エラーレスポンスのハンドリング（要件 3.9, 9.2）
     if (!response.ok) {
@@ -221,7 +232,8 @@ export async function fetchAnalysis(logs: LogEvent[]): Promise<AnalysisResponse>
       switch (response.status) {
         case 401:
           throw new Error(
-            "APIキーが無効です。\n\n" +
+            "APIキーが無効です。\n" +
+            "\n" +
             "**確認事項**:\n" +
             "- Raycast Preferences で正しいAPIキーを設定しているか\n" +
             "- APIキーが有効期限内か\n" +
@@ -229,16 +241,19 @@ export async function fetchAnalysis(logs: LogEvent[]): Promise<AnalysisResponse>
           );
         case 404:
           throw new Error(
-            `モデルが見つかりません（${CLAUDE_MODEL}）\n\n` +
+            `モデルが見つかりません（${CLAUDE_MODEL}）\n` +
+            "\n" +
             "**確認事項**:\n" +
-            "- APIキーが Claude 3.5 Sonnet へのアクセス権を持っているか\n" +
+            "- APIキーが Claude Sonnet 4.5 へのアクセス権を持っているか\n" +
             "- Anthropic Console (console.anthropic.com) でモデルのアクセス権限を確認\n" +
-            "- 組織アカウントの場合、管理者に権限を確認\n\n" +
+            "- 組織アカウントの場合、管理者に権限を確認\n" +
+            "\n" +
             `エラー詳細: ${errorMessage}`
           );
         case 429:
           throw new Error(
-            "APIレート制限に達しました。\n\n" +
+            "APIレート制限に達しました。\n" +
+            "\n" +
             "**対処法**:\n" +
             "- 1分待ってから再試行してください\n" +
             "- 連続して分析を実行しすぎている可能性があります"
@@ -247,7 +262,8 @@ export async function fetchAnalysis(logs: LogEvent[]): Promise<AnalysisResponse>
         case 502:
         case 503:
           throw new Error(
-            "Claude APIが一時的に利用できません。\n\n" +
+            "Claude APIが一時的に利用できません。\n" +
+            "\n" +
             "**対処法**:\n" +
             "- しばらく待ってから再試行してください\n" +
             "- Anthropicのステータスページを確認: https://status.anthropic.com"

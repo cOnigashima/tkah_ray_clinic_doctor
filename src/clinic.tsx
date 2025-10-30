@@ -1,5 +1,5 @@
 /**
- * Critic コンポーネント
+ * Clinic コンポーネント
  * タスク 7.1 & 7.2: AI 分析結果表示機能
  */
 
@@ -60,7 +60,7 @@ function formatProposal(proposal: Proposal): string {
     const { aliasId, suggestedHotkey } = proposal.payload.shortcut;
     markdown += `- **エイリアス**: ${aliasId}\n`;
     markdown += `- **推奨ホットキー**: ${suggestedHotkey}\n`;
-    markdown += `\n**手順**: Raycast Settings > Extensions > Command Critic > ${aliasId} のホットキーを設定してください。\n`;
+    markdown += `\n**手順**: Raycast Settings > Extensions > Command Clinic > ${aliasId} のホットキーを設定してください。\n`;
   } else if ("snippet" in proposal.payload) {
     const { text, alias } = proposal.payload.snippet;
     markdown += `- **スニペット**: \`${alias}\`\n`;
@@ -108,9 +108,9 @@ ${logsCount}件のログを分析しましたが、改善提案は見つかり�
 }
 
 /**
- * Critic: AI 分析結果表示コンポーネント
+ * Clinic: AI 分析結果表示コンポーネント
  */
-export default function Critic() {
+export default function Clinic() {
   const { data, isLoading, error } = usePromise(async () => {
     try {
       // ログを読み込み（要件 3.2, 3.3）
@@ -141,17 +141,31 @@ export default function Critic() {
 
   // ローディング中
   if (isLoading) {
-    return <Detail isLoading={true} markdown="# 🔍 分析中...\n\nログを読み込んで AI 分析を実行しています。しばらくお待ちください。" />;
+    return (
+      <Detail
+        isLoading={true}
+        markdown={`# 🔍 分析中...
+
+ログを読み込んで AI 分析を実行しています。しばらくお待ちください。`}
+      />
+    );
   }
 
   // エラー発生時
   if (error) {
     return (
       <Detail
-        markdown={`# ❌ エラーが発生しました\n\n${error.message}\n\n**トラブルシューティング**:\n- API キーが正しく設定されているか確認\n- インターネット接続を確認\n- しばらく待ってから再試行`}
+        markdown={`# ❌ エラーが発生しました
+
+${error.message}
+
+**トラブルシューティング**:
+- API キーが正しく設定されているか確認
+- インターネット接続を確認
+- しばらく待ってから再試行`}
         actions={
           <ActionPanel>
-            <Action.Push title="Retry" target={<Critic />} />
+            <Action.Push title="Retry" target={<Clinic />} />
           </ActionPanel>
         }
       />
@@ -276,7 +290,7 @@ function ProposalDetail({ proposal }: { proposal: Proposal }) {
       await showToast({
         style: Toast.Style.Success,
         title: "設定画面を開きました",
-        message: "Extensions タブから Command Critic を探してください"
+        message: "Extensions タブから Command Clinic を探してください"
       });
     } catch (err: any) {
       await showToast({
@@ -352,7 +366,7 @@ ${hint.description}
 1. 下のアクションから "Search in Raycast Store" をクリック
 2. Raycast Store で "${hint.suggested_search}" を検索
 3. 拡張機能をインストール
-4. Command Critic のエイリアスに追加して利用開始
+4. Command Clinic のエイリアスに追加して利用開始
 
 ### 利用パターンの改善例
 

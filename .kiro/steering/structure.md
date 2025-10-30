@@ -370,7 +370,7 @@ export async function fetchAnalysis(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-5-20250929",
       max_tokens: 2048,
       system: "You are 'Command Critic', an expert at optimizing Raycast usage. Analyze logs and propose actionable improvements.",
       messages: [{ role: "user", content: prompt }],

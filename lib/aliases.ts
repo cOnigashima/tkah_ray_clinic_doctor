@@ -9,8 +9,12 @@ import { join } from "path";
 import { existsSync } from "fs";
 import type { Alias } from "../types";
 
-/** エイリアス設定ファイルのパス */
-const ALIASES_FILE_PATH = join(environment.supportPath, "aliases.json");
+/**
+ * エイリアス設定ファイルのパスを取得
+ */
+function getAliasesFilePath(): string {
+  return join(environment.supportPath, "aliases.json");
+}
 
 /** エイリアス数の上限（妥当な上限設定） */
 const MAX_ALIASES = 20;
@@ -19,7 +23,7 @@ const MAX_ALIASES = 20;
  * デフォルトのエイリアス設定（Raycast標準機能）
  * オンボーディングで推奨するエイリアス
  */
-const DEFAULT_ALIASES: Alias[] = [
+export const DEFAULT_ALIASES: Alias[] = [
   {
     id: "file-search",
     title: "File Search",
@@ -65,9 +69,9 @@ async function ensureSupportPathExists(): Promise<void> {
 async function initializeAliasesFile(): Promise<void> {
   await ensureSupportPathExists();
 
-  if (!existsSync(ALIASES_FILE_PATH)) {
+  if (!existsSync(getAliasesFilePath())) {
     await writeFile(
-      ALIASES_FILE_PATH,
+      getAliasesFilePath(),
       JSON.stringify(DEFAULT_ALIASES, null, 2),
       "utf-8"
     );
@@ -82,7 +86,7 @@ export async function getAliases(): Promise<Alias[]> {
   await initializeAliasesFile();
 
   try {
-    const data = await readFile(ALIASES_FILE_PATH, "utf-8");
+    const data = await readFile(getAliasesFilePath(), "utf-8");
     const aliases: Alias[] = JSON.parse(data);
     return aliases;
   } catch (e) {
@@ -146,7 +150,7 @@ export async function saveAliases(aliases: Alias[]): Promise<void> {
 
   try {
     await writeFile(
-      ALIASES_FILE_PATH,
+      getAliasesFilePath(),
       JSON.stringify(aliases, null, 2),
       "utf-8"
     );

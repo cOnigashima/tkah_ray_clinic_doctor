@@ -1,5 +1,5 @@
 /**
- * Command Critic - 型定義
+ * Command Clinic - 型定義
  *
  * このファイルはシステム全体で使用される型定義を集約します。
  * すべての型はstrict TypeScriptモードで動作します。

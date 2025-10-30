@@ -1,7 +1,7 @@
-# Command Critic Raycast - 手動テストガイド
+# Command Clinic Raycast - 手動テストガイド
 
 ## 概要
-このドキュメントは Command Critic Raycast 拡張機能の手動テスト手順を定義します。MVP 検証のための重要なテストケースを網羅しています。
+このドキュメントは Command Clinic Raycast 拡張機能の手動テスト手順を定義します。MVP 検証のための重要なテストケースを網羅しています。
 
 ---
 
@@ -27,10 +27,10 @@
 
 **手順**:
 1. Raycast を開く（⌘ + Space）
-2. `Onboarding` と入力して Command Critic のオンボーディングを起動
+2. `Onboarding` と入力して Command Clinic のオンボーディングを起動
 3. グローバルショートカット（⌥⌘K）の設定ガイダンスを確認
 4. Raycast Preferences へのディープリンクをクリック
-5. Extensions > Command Critic > Launcher に ⌥⌘K を設定
+5. Extensions > Command Clinic > Launcher に ⌥⌘K を設定
 6. オンボーディング画面に戻る
 
 **期待結果**:
@@ -92,7 +92,7 @@
 2. Raycast の Search Files 機能が起動することを確認
 3. 以下のコマンドでログファイルを確認:
    ```bash
-   cat ~/Library/Application\ Support/com.raycast.macos/extensions/command-critic-raycast/logs-$(date +%Y-%m-%d).jsonl
+   cat ~/Library/Application\ Support/com.raycast.macos/extensions/command-clinic-raycast/logs-$(date +%Y-%m-%d).jsonl
    ```
 
 **期待結果**:
@@ -114,7 +114,7 @@
 2. 各日に異なるコマンドを実行
 3. サポートディレクトリを確認:
    ```bash
-   ls -la ~/Library/Application\ Support/com.raycast.macos/extensions/command-critic-raycast/
+   ls -la ~/Library/Application\ Support/com.raycast.macos/extensions/command-clinic-raycast/
    ```
 
 **期待結果**:
@@ -130,7 +130,7 @@
 **手順**:
 1. Raycast を開く（⌘ + Space）
 2. `Preferences` と入力
-3. Extensions > Command Critic を選択
+3. Extensions > Command Clinic を選択
 4. Claude API Key フィールドに有効なキーを入力
 
 **期待結果**:
@@ -140,7 +140,7 @@
 #### 3.2 分析の実行
 **手順**:
 1. 最低10回以上のログを収集（上記 2.2, 2.3 参照）
-2. Raycast で `Critic` コマンドを起動
+2. Raycast で `Clinic` コマンドを起動
 3. ローディング表示を確認
 4. 分析完了を待つ（最大10秒）
 
@@ -322,9 +322,9 @@ Search Files の頻度が高いです
 **手順**:
 1. 8日以上前のログファイルを手動で作成（テスト用）:
    ```bash
-   touch ~/Library/Application\ Support/com.raycast.macos/extensions/command-critic-raycast/logs-2025-10-01.jsonl
+   touch ~/Library/Application\ Support/com.raycast.macos/extensions/command-clinic-raycast/logs-2025-10-01.jsonl
    ```
-2. Critic コマンドを実行（自動削除トリガー）
+2. Clinic コマンドを実行（自動削除トリガー）
 3. サポートディレクトリを確認
 
 **期待結果**:
@@ -338,7 +338,7 @@ Search Files の頻度が高いです
 #### 7.1 API キー未設定エラー
 **手順**:
 1. Raycast Preferences で API キーをクリア
-2. Critic コマンドを実行
+2. Clinic コマンドを実行
 
 **期待結果**:
 - [ ] 詳細なエラーメッセージが表示される:
@@ -348,14 +348,14 @@ Search Files の頻度が高いです
   **設定方法**:
   1. Raycast を開く（⌘ + Space）
   2. 'Preferences' と入力
-  3. 'Extensions' > 'Command Critic' を選択
+  3. 'Extensions' > 'Command Clinic' を選択
   4. 'Claude API Key' フィールドにキーを入力
   5. API キーは https://console.anthropic.com で取得できます
   ```
 
 #### 7.2 API レート制限エラー
 **手順**:
-1. Critic コマンドを連続して5回実行（1秒以内）
+1. Clinic コマンドを連続して5回実行（1秒以内）
 
 **期待結果**:
 - [ ] レート制限エラーメッセージが表示される:
@@ -370,7 +370,7 @@ Search Files の頻度が高いです
 #### 7.3 ネットワークタイムアウトエラー
 **手順**:
 1. ネットワーク接続を一時的に無効化
-2. Critic コマンドを実行
+2. Clinic コマンドを実行
 
 **期待結果**:
 - [ ] タイムアウトエラーが表示される（10秒後）
@@ -380,7 +380,7 @@ Search Files の頻度が高いです
 **手順**:
 1. サポートディレクトリの書き込み権限を削除:
    ```bash
-   chmod 444 ~/Library/Application\ Support/com.raycast.macos/extensions/command-critic-raycast/
+   chmod 444 ~/Library/Application\ Support/com.raycast.macos/extensions/command-clinic-raycast/
    ```
 2. Launcher でコマンドを実行
 
@@ -390,16 +390,16 @@ Search Files の頻度が高いです
 
 **後処理**:
 ```bash
-chmod 755 ~/Library/Application\ Support/com.raycast.macos/extensions/command-critic-raycast/
+chmod 755 ~/Library/Application\ Support/com.raycast.macos/extensions/command-clinic-raycast/
 ```
 
 #### 7.5 破損したログファイル
 **手順**:
 1. 手動で破損したログファイルを作成:
    ```bash
-   echo "invalid json line" >> ~/Library/Application\ Support/com.raycast.macos/extensions/command-critic-raycast/logs-$(date +%Y-%m-%d).jsonl
+   echo "invalid json line" >> ~/Library/Application\ Support/com.raycast.macos/extensions/command-clinic-raycast/logs-$(date +%Y-%m-%d).jsonl
    ```
-2. Critic コマンドを実行
+2. Clinic コマンドを実行
 
 **期待結果**:
 - [ ] 破損した行はスキップされる
@@ -426,7 +426,7 @@ chmod 755 ~/Library/Application\ Support/com.raycast.macos/extensions/command-cr
 ### 8.2 分析処理時間
 **手順**:
 1. 100件のログを準備
-2. Critic コマンドで分析を実行
+2. Clinic コマンドで分析を実行
 3. 完了までの時間を計測
 
 **期待結果**:
@@ -536,10 +536,10 @@ npm install
 ### ログファイルが作成されない
 ```bash
 # サポートディレクトリの権限を確認
-ls -la ~/Library/Application\ Support/com.raycast.macos/extensions/command-critic-raycast/
+ls -la ~/Library/Application\ Support/com.raycast.macos/extensions/command-clinic-raycast/
 
 # 権限を修正
-chmod 755 ~/Library/Application\ Support/com.raycast.macos/extensions/command-critic-raycast/
+chmod 755 ~/Library/Application\ Support/com.raycast.macos/extensions/command-clinic-raycast/
 ```
 
 ### API 呼び出しが失敗する

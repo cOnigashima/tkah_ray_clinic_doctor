@@ -106,12 +106,12 @@
 #### Claude API
 - **Endpoint**: `https://api.anthropic.com/v1/messages`
 - **Authentication**: API キー（Raycast Preferences から取得）
-- **Model**: `claude-3-5-sonnet-20241022`（推奨）
+- **Model**: `claude-sonnet-4-5-20250929`（Claude Sonnet 4.5 - 最新モデル）
 
 #### Request Format
 ```typescript
 {
-  model: "claude-3-5-sonnet-20241022",
+  model: "claude-sonnet-4-5-20250929",
   max_tokens: 2048,
   system: "You are 'Command Critic', an expert at optimizing Raycast usage...",
   messages: [{
@@ -291,7 +291,7 @@ npx tsc --noEmit
 curl -X POST https://api.anthropic.com/v1/messages \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model":"claude-3-...","messages":[...]}'
+  -d '{"model":"claude-sonnet-4-5-20250929","messages":[...]}'
 ```
 
 ## Environment Variables

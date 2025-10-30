@@ -1,44 +1,38 @@
-import { List, ActionPanel, Action, showToast, Toast, Icon, LaunchType, launchCommand } from "@raycast/api";
+import { List, ActionPanel, Action, showToast, Toast, Icon, LaunchType, launchCommand, open, Color } from "@raycast/api";
 import { useState, useEffect } from "react";
 import type { Alias } from "../types";
 import { getAliases } from "../lib/aliases";
 import { appendInputLog, appendLaunchLog } from "../lib/log";
-
-// デフォルトエイリアス（エイリアス設定がない場合のフォールバック）
-// 注意: Raycast built-in機能ではなく、一般的にインストール可能な拡張機能を例示
-const DEFAULT_ALIASES: Alias[] = [
-  {
-    id: "example_github",
-    title: "GitHub Search Repositories",
-    target: { owner: "raycast", extension: "github", command: "search-repositories" },
-  },
-  {
-    id: "example_jira",
-    title: "Jira Search Issues",
-    target: { owner: "raycast", extension: "jira", command: "search-issues" },
-  },
-  {
-    id: "example_notion",
-    title: "Notion Search",
-    target: { owner: "notion", extension: "notion", command: "search-page" },
-  },
-];
+import { getAllPredefinedCommands, isBuiltinCommand } from "../lib/raycast-commands";
 
 export default function Launcher() {
   const [searchText, setSearchText] = useState("");
-  const [aliases, setAliases] = useState<Alias[]>(DEFAULT_ALIASES);
+  const [aliases, setAliases] = useState<Alias[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showBuiltin, setShowBuiltin] = useState(true);
 
   // エイリアスの読み込み
   useEffect(() => {
     async function loadAliases() {
       setIsLoading(true);
       try {
-        const loadedAliases = await getAliases();
-        setAliases(loadedAliases.length > 0 ? loadedAliases : DEFAULT_ALIASES);
+        // ユーザー定義のエイリアスを読み込み
+        const userAliases = await getAliases();
+
+        // 事前定義コマンドを取得
+        const predefinedCommands = getAllPredefinedCommands();
+
+        // ユーザー定義 + 事前定義を結合
+        const combinedAliases = [
+          ...userAliases,
+          ...predefinedCommands
+        ];
+
+        setAliases(combinedAliases);
       } catch (error) {
         console.error("[Launcher] エイリアス読み込みエラー:", error);
-        setAliases(DEFAULT_ALIASES);
+        // エラー時は事前定義コマンドのみ表示
+        setAliases(getAllPredefinedCommands());
       } finally {
         setIsLoading(false);
       }
@@ -65,19 +59,48 @@ export default function Launcher() {
 
   // エイリアス起動時のログ記録とコマンド実行
   const handleLaunch = async (alias: Alias) => {
-    try {
-      // 起動ログの記録（非同期でバックグラウンド実行、要件 5.2, 2.2）
-      // Promise.resolve()でキューイングし、コマンド起動と並行実行
+    // Built-in機能の場合は特別な処理
+    if (isBuiltinCommand(alias)) {
+      // Built-in機能の「起動意図」をログに記録（重要！）
       Promise.resolve()
-        .then(() => appendLaunchLog(alias.id, alias.target))
+        .then(() => appendLaunchLog(alias.id, {
+          ...alias.target,
+          type: "builtin_intent" // 標準機能の使用意図として記録
+        }))
         .catch((error) => {
-          console.error("[Launcher] 起動ログ記録エラー:", error);
-          // 静かに失敗（要件 2.9）
+          console.error("[Launcher] Built-in起動意図ログ記録エラー:", error);
         });
 
-      // 拡張機能の起動（launchCommand API使用、要件 6.1, 6.2, 6.3, 6.4）
-      // owner が "raycast" の場合は Raycast Store の拡張機能
-      // それ以外の場合はサードパーティ拡張機能（owner名を指定）
+      await showToast({
+        style: Toast.Style.Animated,
+        title: "標準機能を起動",
+        message: `${alias.title} を使用します。\n\nRaycast検索ウィンドウが開きます。\n"${alias.title}" と入力するか、\nショートカット（${alias.suggestHotkey || "未設定"}）を使用してください。`,
+        primaryAction: {
+          title: "Raycastを開く",
+          onAction: async () => {
+            await open("raycast://");
+          },
+        },
+      });
+
+      // Raycast本体を開く（検索ウィンドウを表示）
+      try {
+        await open("raycast://");
+      } catch {
+        // エラーは無視
+      }
+      return;
+    }
+
+    // 通常の拡張機能の起動ログ記録（非同期でバックグラウンド実行）
+    Promise.resolve()
+      .then(() => appendLaunchLog(alias.id, alias.target))
+      .catch((error) => {
+        console.error("[Launcher] 起動ログ記録エラー:", error);
+      });
+
+    // 通常の拡張機能の起動
+    try {
       await launchCommand({
         extensionName: alias.target.extension,
         name: alias.target.command,
@@ -96,15 +119,22 @@ export default function Launcher() {
 
       // エラーメッセージの改善
       let errorMessage = "コマンド起動に失敗しました。";
+      let primaryAction: Toast.ActionOptions | undefined;
 
       if (error instanceof Error) {
         if (error.message.includes("No enabled command")) {
           errorMessage =
-            `拡張機能が見つかりません。\n\n` +
-            `**確認事項:**\n` +
-            `• ${alias.target.owner}/${alias.target.extension} がインストールされているか\n` +
-            `• 拡張機能が有効化されているか\n` +
-            `• コマンド名（${alias.target.command}）が正しいか`;
+            `${alias.title} 拡張機能がインストールされていません。\n\n` +
+            `Raycast Store でインストールしてください。`;
+
+          // Raycast Store への直接リンクを提供
+          const storeSearchUrl = `raycast://extensions/search?q=${encodeURIComponent(alias.title)}`;
+          primaryAction = {
+            title: "Store で検索",
+            onAction: async () => {
+              await open(storeSearchUrl);
+            },
+          };
         } else {
           errorMessage = error.message;
         }
@@ -112,8 +142,9 @@ export default function Launcher() {
 
       await showToast({
         style: Toast.Style.Failure,
-        title: "起動エラー",
+        title: "未インストール",
         message: errorMessage,
+        primaryAction,
       });
     }
   };
@@ -145,40 +176,74 @@ export default function Launcher() {
           description="検索条件を変更するか、オンボーディングでエイリアスを追加してください"
         />
       ) : (
-        filteredAliases.map((alias) => (
-          <List.Item
-            key={alias.id}
-            icon={Icon.Terminal}
-            title={alias.title}
-            subtitle={`${alias.target.owner}/${alias.target.extension}`}
-            accessories={[
-              { text: alias.target.command },
-              ...(alias.suggestHotkey ? [{ tag: alias.suggestHotkey }] : []),
-            ]}
-            actions={
-              <ActionPanel>
-                <Action
-                  title="起動"
-                  icon={Icon.Play}
-                  onAction={() => handleLaunch(alias)}
-                  shortcut={{ modifiers: [], key: "return" }}
-                />
-                <Action
-                  title="エイリアス詳細"
-                  icon={Icon.Info}
-                  onAction={() => {
-                    showToast({
-                      style: Toast.Style.Success,
-                      title: alias.title,
-                      message: `${alias.target.owner}/${alias.target.extension}/${alias.target.command}`,
-                    });
-                  }}
-                  shortcut={{ modifiers: ["cmd"], key: "i" }}
-                />
-              </ActionPanel>
-            }
-          />
-        ))
+        filteredAliases.map((alias) => {
+          const isBuiltin = isBuiltinCommand(alias);
+          const isUserDefined = !alias.id.startsWith("builtin_") && !alias.id.startsWith("ext_");
+          const isPredefinedExtension = alias.id.startsWith("ext_");
+
+          return (
+            <List.Item
+              key={alias.id}
+              icon={
+                isBuiltin
+                  ? Icon.Box
+                  : isUserDefined
+                  ? Icon.Star
+                  : Icon.Download
+              }
+              title={alias.title}
+              subtitle={
+                isBuiltin
+                  ? "Raycast標準機能 → 手動起動"
+                  : `${alias.target.owner}/${alias.target.extension}`
+              }
+              accessories={[
+                { text: alias.target.command },
+                ...(alias.suggestHotkey ? [{ tag: alias.suggestHotkey }] : []),
+                ...(isUserDefined ? [{ tag: "⭐ Custom" }] : []),
+                ...(isPredefinedExtension ? [{ tag: "📦 Store", color: Color.Orange }] : []),
+                ...(isBuiltin ? [{ tag: "📌 手動", color: Color.Blue }] : []),
+              ]}
+              actions={
+                <ActionPanel>
+                  <Action
+                    title={isBuiltin ? "Raycastで開く（ログ記録）" : "起動"}
+                    icon={isBuiltin ? Icon.ArrowRight : Icon.Play}
+                    onAction={() => handleLaunch(alias)}
+                    shortcut={{ modifiers: [], key: "return" }}
+                  />
+                  {isPredefinedExtension && (
+                    <Action
+                      title="Storeでインストール"
+                      icon={Icon.Store}
+                      onAction={async () => {
+                        const storeSearchUrl = `raycast://extensions/search?q=${encodeURIComponent(alias.title)}`;
+                        await open(storeSearchUrl);
+                      }}
+                      shortcut={{ modifiers: ["cmd"], key: "s" }}
+                    />
+                  )}
+                  <Action
+                    title="詳細"
+                    icon={Icon.Info}
+                    onAction={() => {
+                      const message = isBuiltin
+                        ? `Raycast本体の機能です。\nショートカット: ${alias.suggestHotkey || "未設定"}`
+                        : `${alias.target.owner}/${alias.target.extension}/${alias.target.command}`;
+
+                      showToast({
+                        style: Toast.Style.Success,
+                        title: alias.title,
+                        message: message,
+                      });
+                    }}
+                    shortcut={{ modifiers: ["cmd"], key: "i" }}
+                  />
+                </ActionPanel>
+              }
+            />
+          );
+        })
       )}
     </List>
   );

@@ -133,15 +133,21 @@ export default function Onboarding() {
       isLoading={isSubmitting}
     >
       <Form.Description
-        title="Command Critic へようこそ"
-        text="操作ログを収集して、AI が最適化提案を生成します。初回セットアップを完了しましょう（約2分）。"
+        title="Command Clinic へようこそ"
+        text={`操作ログを収集して、AI が最適化提案を生成します。
+
+⚠️ 重要: Launcher は「エイリアス登録型ランチャー」です。
+登録したお気に入りコマンドのみを起動・記録します。
+Raycast本体のような全コマンドアクセスではありません。
+
+初回セットアップを完了しましょう（約2分）。`}
       />
 
       <Form.Separator />
 
       <Form.Description
         title="ステップ 1: グローバルショートカット"
-        text="推奨: ⌥⌘K を設定してください（Raycast設定 > Extensions > Command Critic）"
+        text="推奨: ⌥⌘K を設定してください（Raycast設定 > Extensions > Command Clinic）"
       />
 
       <Form.TextField

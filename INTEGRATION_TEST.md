@@ -1,4 +1,4 @@
-# Command Critic - 統合テストチェックリスト
+# Command Clinic - 統合テストチェックリスト
 
 ## タスク 11.1: コンポーネント間の統合確認
 
@@ -7,7 +7,7 @@
 #### テストケース 1.1: 入力ログの記録
 - [ ] ランチャーを起動: `npm run dev` → Launcher コマンド実行
 - [ ] 検索バーにテキストを入力: 例 "test search"
-- [ ] ログファイルを確認: `~/Library/Application Support/com.raycast.macos/extensions/command-critic-raycast/logs-YYYY-MM-DD.jsonl`
+- [ ] ログファイルを確認: `~/Library/Application Support/com.raycast.macos/extensions/command-clinic-raycast/logs-YYYY-MM-DD.jsonl`
 - [ ] 期待結果: InputEvent が記録されている
   ```json
   {"type":"input","ts":1234567890,"text":"test search","len":11}
@@ -25,12 +25,12 @@
 
 #### テストケース 2.1: ログ読み込み
 - [ ] 複数日分のログを作成（手動またはLauncher使用）
-- [ ] Critic コマンドを実行
+- [ ] Clinic コマンドを実行
 - [ ] 期待結果: ローディング表示が表示される
 
 #### テストケース 2.2: Claude API 呼び出し
-- [ ] API キーを設定: Raycast Settings > Extensions > Command Critic > Preferences
-- [ ] Critic コマンドで分析実行
+- [ ] API キーを設定: Raycast Settings > Extensions > Command Clinic > Preferences
+- [ ] Clinic コマンドで分析実行
 - [ ] 期待結果:
   - API キー未設定時 → エラーメッセージ表示
   - API キー設定済み → 分析実行、提案表示または「データ不足」メッセージ
@@ -99,12 +99,12 @@
 ### 3. AI分析と提案表示の動作確認
 
 #### テスト手順（データ不足の場合）
-1. [ ] ログが少ない状態で Critic を実行
+1. [ ] ログが少ない状態で Clinic を実行
 2. [ ] 期待結果: "データ不足" メッセージが表示される
 
 #### テスト手順（十分なデータがある場合）
 1. [ ] 3日以上の操作ログを蓄積
-2. [ ] Critic コマンドを実行
+2. [ ] Clinic コマンドを実行
 3. [ ] 期待結果:
    - ローディング表示 → 提案リスト表示
    - 最大3件の提案
@@ -116,12 +116,12 @@
 
 #### エラーケース 4.1: API キー未設定
 - [ ] API キーを削除
-- [ ] Critic コマンドを実行
+- [ ] Clinic コマンドを実行
 - [ ] 期待結果: 適切なエラーメッセージとPreferences設定への誘導
 
 #### エラーケース 4.2: ネットワークエラー
 - [ ] ネットワークを切断
-- [ ] Critic コマンドを実行
+- [ ] Clinic コマンドを実行
 - [ ] 期待結果: タイムアウトエラーと再試行ガイダンス
 
 #### エラーケース 4.3: ファイルアクセスエラー
@@ -131,7 +131,7 @@
 
 #### エラーケース 4.4: 破損したログファイル
 - [ ] ログファイルに不正なJSONを追加
-- [ ] Critic コマンドを実行
+- [ ] Clinic コマンドを実行
 - [ ] 期待結果: 破損した行をスキップして処理継続
 
 ### 5. セキュリティとプライバシー機能の検証
@@ -143,7 +143,7 @@
 
 #### テスト 5.2: 分析時のみデータ送信
 - [ ] ネットワークモニターを開く
-- [ ] Critic コマンドを実行
+- [ ] Clinic コマンドを実行
 - [ ] 期待結果: Claude API (api.anthropic.com) へのリクエストのみ
 
 #### テスト 5.3: 7日後の自動削除
@@ -160,18 +160,18 @@
 ### 6. 最適化アクションの動作確認
 
 #### テスト 6.1: スニペット定義のコピー
-- [ ] Critic で snippet 提案を表示
+- [ ] Clinic で snippet 提案を表示
 - [ ] "Copy Snippet Definition" をクリック
 - [ ] クリップボードを確認: `pbpaste`
 - [ ] 期待結果: YAML形式のスニペット定義がコピーされている
 
 #### テスト 6.2: マクロテンプレートのコピー
-- [ ] Critic で macro 提案を表示
+- [ ] Clinic で macro 提案を表示
 - [ ] "Copy Macro Template" をクリック
 - [ ] 期待結果: Shell スクリプトがコピーされている
 
 #### テスト 6.3: Raycast 設定へのディープリンク
-- [ ] Critic で shortcut 提案を表示
+- [ ] Clinic で shortcut 提案を表示
 - [ ] "Open Raycast Settings" をクリック
 - [ ] 期待結果: Raycast Settings が開く
 

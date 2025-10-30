@@ -264,7 +264,7 @@ interface LogEvent {
 - Claude API エンドポイント: `https://api.anthropic.com/v1/messages`
 - 認証: API キーベース (x-api-key ヘッダー)
 - レート制限: ティアに応じて異なる（MVP では考慮不要）
-- モデル: claude-3-5-sonnet-20241022 推奨
+- モデル: claude-sonnet-4-5-20250929 (Claude Sonnet 4.5 - 最新モデル)
 
 **API コントラクト**
 | メソッド | エンドポイント | リクエスト | レスポンス | エラー |

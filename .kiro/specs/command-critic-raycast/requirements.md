@@ -49,7 +49,7 @@ Command Critic は、ユーザーの操作ログ（入力テキストとコマ�
 2. WHEN 分析が始まる THEN Command Critic SHALL `environment.supportPath` から過去 7 日間の JSONL ログファイルを読み込む
 3. WHEN ログファイルを読み込む THEN Command Critic SHALL データセットを最新 500 イベントまでに制限する
 4. WHEN ログデータが収集される THEN Command Critic SHALL 生 JSONL ログと分析ルールを含むプロンプトを構築する
-5. WHEN プロンプトが準備完了する THEN Command Critic SHALL モデル `claude-3-5-sonnet-20241022` を使用して `https://api.anthropic.com/v1/messages` の Claude API に送信する
+5. WHEN プロンプトが準備完了する THEN Command Critic SHALL モデル `claude-sonnet-4-5-20250929` (Claude Sonnet 4.5) を使用して `https://api.anthropic.com/v1/messages` の Claude API に送信する
 6. WHEN API リクエストを行う THEN Command Critic SHALL `getPreferenceValues` を使用して Raycast Preferences から API キーを取得する
 7. WHEN Claude API がレスポンスを返す THEN Command Critic SHALL JSON レスポンスをパースして proposals 配列を抽出する
 8. WHEN 不正な JSON によりパースが失敗する THEN Command Critic SHALL 空の proposals 配列を返し、エラーをログに記録する

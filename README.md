@@ -1,10 +1,10 @@
-# Command Critic Raycast Extension
+# Command Clinic Raycast Extension
 
 Raycast操作ログを収集し、AI分析により最適化提案を生成する拡張機能
 
 ## 概要
 
-Command Critic は、ユーザーの Raycast 操作パターン（入力テキストとコマンド起動）を自動的に収集し、Claude AI による分析を通じて、ショートカット、スニペット、マクロの形で実行可能な最適化提案を提供します。
+Command Clinic は、ユーザーの Raycast 操作パターン（入力テキストとコマンド起動）を自動的に収集し、Claude AI による分析を通じて、ショートカット、スニペット、マクロの形で実行可能な最適化提案を提供します。
 
 ### 主要機能
 
@@ -29,7 +29,7 @@ Command Critic は、ユーザーの Raycast 操作パターン（入力テキ�
    ```
 
 2. **API キーの設定**
-   - Raycast を開き、Command Critic の設定画面へ移動
+   - Raycast を開き、Command Clinic の設定画面へ移動
    - `Claude API Key` フィールドに API キーを入力
 
 3. **オンボーディング**
@@ -47,7 +47,7 @@ Command Critic は、ユーザーの Raycast 操作パターン（入力テキ�
 
 ### 2. AI 分析と提案表示
 
-- `/critic` コマンドを実行
+- `/clinic` コマンドを実行
 - 過去 7 日間のログを Claude AI が分析
 - 最大 3 件の最適化提案を表示
 
@@ -63,7 +63,7 @@ Command Critic は、ユーザーの Raycast 操作パターン（入力テキ�
 tkah_ray_clinic_doctor/
 ├── src/                    # UI コンポーネント
 │   ├── launcher.tsx       # ログ収集ランチャー
-│   ├── critic.tsx         # AI 分析結果表示
+│   ├── clinic.tsx         # AI 分析結果表示
 │   └── onboarding.tsx     # オンボーディングフロー
 ├── lib/                    # ビジネスロジック
 │   ├── log.ts             # ログ管理（JSONL 読み書き）
@@ -81,7 +81,7 @@ tkah_ray_clinic_doctor/
 
 ### ログ保存場所
 
-- **場所**: `~/.config/raycast/extensions/command-critic-raycast/support/`
+- **場所**: `~/.config/raycast/extensions/command-clinic-raycast/support/`
 - **形式**: JSONL (1行1JSONオブジェクト)
 - **ファイル名**: `logs-YYYY-MM-DD.jsonl` (日次パーティション)
 - **保持期間**: 7日間（自動削除）
@@ -89,7 +89,7 @@ tkah_ray_clinic_doctor/
 ### プライバシーポリシー
 
 - ログは完全にローカル保存
-- 外部送信は `/critic` コマンド実行時のみ
+- 外部送信は `/clinic` コマンド実行時のみ
 - ユーザーが明示的に分析をトリガー
 
 ## 開発
@@ -123,7 +123,7 @@ Preferences で API キーが正しく設定されているか確認してくだ
 
 ### ログが保存されない
 
-ディスク容量を確認し、`~/.config/raycast/extensions/command-critic-raycast/support/` への書き込み権限を確認してください。
+ディスク容量を確認し、`~/.config/raycast/extensions/command-clinic-raycast/support/` への書き込み権限を確認してください。
 
 ### AI 分析が失敗する
 
