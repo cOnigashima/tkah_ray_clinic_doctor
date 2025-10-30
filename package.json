@@ -46,10 +46,19 @@
     {
       "name": "apiKey",
       "type": "password",
-      "required": true,
+      "required": false,
       "title": "Claude API Key",
       "description": "Anthropic Claude API キー（https://console.anthropic.com から取得）",
       "placeholder": "sk-ant-..."
+    },
+    {
+      "name": "demoMode",
+      "type": "checkbox",
+      "required": false,
+      "title": "Demo Mode",
+      "label": "Enable demo mode (use mock data)",
+      "description": "デモモード有効時は固定データを4秒で表示（API キー不要）",
+      "default": false
     }
   ],
   "dependencies": {

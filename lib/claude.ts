@@ -14,7 +14,7 @@ const CLAUDE_API_ENDPOINT = "https://api.anthropic.com/v1/messages";
 const CLAUDE_MODEL = "claude-sonnet-4-5-20250929";
 
 /** API リクエストのタイムアウト（ミリ秒） */
-const API_TIMEOUT = 30000; // 30秒（AI分析には時間がかかる場合がある）
+const API_TIMEOUT = 60000; // 60秒（Claude Sonnet 4.5 は処理に時間がかかる）
 
 /** レート制限対策: 最小呼び出し間隔（ミリ秒） */
 const MIN_CALL_INTERVAL = 1000; // 1秒

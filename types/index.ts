@@ -216,4 +216,6 @@ export interface AppError {
 export interface Preferences {
   /** Claude API キー */
   apiKey: string;
+  /** デモモード（固定データを即座に返す） */
+  demoMode?: boolean;
 }

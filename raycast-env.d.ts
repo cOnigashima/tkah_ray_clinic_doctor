@@ -9,7 +9,9 @@
 
 type ExtensionPreferences = {
   /** Claude API Key - Anthropic Claude API キー（https://console.anthropic.com から取得） */
-  "apiKey": string
+  "apiKey"?: string,
+  /** Demo Mode - デモモード有効時は固定データを4秒で表示（API キー不要） */
+  "demoMode": boolean
 }
 
 /** Preferences accessible in all the extension's commands */

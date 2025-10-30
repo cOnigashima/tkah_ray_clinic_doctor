@@ -3,12 +3,13 @@
  * タスク 7.1 & 7.2: AI 分析結果表示機能
  */
 
-import { Detail, ActionPanel, Action, List, Toast, showToast, Clipboard, open, Icon } from "@raycast/api";
+import { Detail, ActionPanel, Action, List, Toast, showToast, Clipboard, open, Icon, getPreferenceValues } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { readRecentLogs } from "../lib/log";
 import { fetchAnalysis } from "../lib/claude";
 import { generateSnippetYAML, generateMacroShell, formatShortcutGuide } from "../lib/templates";
-import type { Proposal, ExtensionHint } from "../types";
+import { DEMO_ANALYSIS_RESULT, DEMO_DELAY_MS } from "../lib/demo-data";
+import type { Proposal, ExtensionHint, Preferences } from "../types";
 
 /**
  * 提案を Markdown 形式でフォーマット
@@ -113,7 +114,24 @@ ${logsCount}件のログを分析しましたが、改善提案は見つかり�
 export default function Clinic() {
   const { data, isLoading, error } = usePromise(async () => {
     try {
-      // ログを読み込み（要件 3.2, 3.3）
+      // Preferences からデモモード設定を取得
+      const preferences = getPreferenceValues<Preferences>();
+      const isDemoMode = preferences.demoMode === true;
+
+      // デモモードの場合は固定データを即座に返す
+      if (isDemoMode) {
+        console.log("[Clinic] Demo mode enabled - returning mock data");
+        // リアルな API 呼び出しをシミュレートするため4秒待機
+        await new Promise(resolve => setTimeout(resolve, DEMO_DELAY_MS));
+
+        return {
+          proposals: DEMO_ANALYSIS_RESULT.proposals,
+          extensionHints: DEMO_ANALYSIS_RESULT.extension_hints || [],
+          logsCount: 100 // デモ用のダミー値
+        };
+      }
+
+      // 通常モード: 実際の AI 分析
       const logs = await readRecentLogs(7, 100);
 
       if (logs.length === 0) {

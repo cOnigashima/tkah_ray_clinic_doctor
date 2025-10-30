@@ -125,14 +125,24 @@ export default function Launcher() {
         if (error.message.includes("No enabled command")) {
           errorMessage =
             `${alias.title} 拡張機能がインストールされていません。\n\n` +
-            `Raycast Store でインストールしてください。`;
+            `⌘+Enter で Raycast Store を開きます。`;
 
           // Raycast Store への直接リンクを提供
-          const storeSearchUrl = `raycast://extensions/search?q=${encodeURIComponent(alias.title)}`;
           primaryAction = {
             title: "Store で検索",
             onAction: async () => {
-              await open(storeSearchUrl);
+              await launchCommand({
+                name: "index",
+                type: LaunchType.UserInitiated,
+                extensionName: "extensions",
+                ownerOrAuthorName: "raycast",
+                context: {
+                  searchText: alias.title
+                }
+              }).catch(async () => {
+                // フォールバック: ブラウザで開く
+                await open(`https://www.raycast.com/store?q=${encodeURIComponent(alias.title)}`);
+              });
             },
           };
         } else {
@@ -217,8 +227,19 @@ export default function Launcher() {
                       title="Storeでインストール"
                       icon={Icon.Store}
                       onAction={async () => {
-                        const storeSearchUrl = `raycast://extensions/search?q=${encodeURIComponent(alias.title)}`;
-                        await open(storeSearchUrl);
+                        // Raycast Store を開く
+                        await launchCommand({
+                          name: "index",
+                          type: LaunchType.UserInitiated,
+                          extensionName: "extensions",
+                          ownerOrAuthorName: "raycast",
+                          context: {
+                            searchText: alias.title
+                          }
+                        }).catch(async () => {
+                          // フォールバック: ブラウザで開く
+                          await open(`https://www.raycast.com/store?q=${encodeURIComponent(alias.title)}`);
+                        });
                       }}
                       shortcut={{ modifiers: ["cmd"], key: "s" }}
                     />
