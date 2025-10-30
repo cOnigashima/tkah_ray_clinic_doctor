@@ -95,7 +95,7 @@
 - **追記オンリー**: 既存ログの変更なし、新規イベントは末尾に追加
 - **ファイル操作**: Node.js `fs/promises` モジュール使用（`writeFile`, `readFile`, `readdir`, `unlink`）
 - **保持期間**: 直近 7 日分を自動保持（古いファイルは削除）
-- **読み込み最適化**: 分析時は直近 7 日 / 最大 500 件に制限
+- **読み込み最適化**: 分析時は直近 7 日 / 最大 100 件に制限（Claude APIトークン予算対策）
 
 #### 重要な実装注意点
 - ⚠️ **LocalStorage は使用しない**（大容量データには不向き）
@@ -117,7 +117,7 @@
   messages: [{
     role: "user",
     content: `
-# RAW_LOGS (last 7 days, max 500 events)
+# RAW_LOGS (last 7 days, max 100 events)
 ${logsJsonl}
 
 # RULES

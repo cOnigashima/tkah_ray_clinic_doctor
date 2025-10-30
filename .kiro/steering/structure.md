@@ -260,7 +260,7 @@ export async function appendLaunchLog(
 
 export async function readRecentLogs(
   days: number = 7,
-  limit: number = 500
+  limit: number = 100  // Claude API トークン予算: 100イベント≒2,500トークン
 ): Promise<(InputEvent | LaunchEvent)[]> {
   await ensureSupportPathExists();
   const events: (InputEvent | LaunchEvent)[] = [];
