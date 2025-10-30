@@ -1,3 +1,6 @@
+# 動きません！
+RaycastのAPI limitationのため
+
 # Command Clinic Raycast Extension
 
 Raycast操作ログを収集し、AI分析により最適化提案を生成する拡張機能
